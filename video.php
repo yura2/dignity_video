@@ -1,12 +1,17 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-/**
+/*
  * (c) Alexander Schilling
  * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
  */
 
 // начало шаблона
-require(getinfo('template_dir') . 'main-start.php');
+if ($fn = mso_find_ts_file('main/main-start.php')) require($fn);
+
+// выводим меню
+video_menu();
 
 // доступ к CI
 $CI = & get_instance();
@@ -16,7 +21,7 @@ $options = mso_get_option('plugin_dignity_video', 'plugins', array());
 if ( !isset($options['limit']) ) $options['limit'] = 10;
 if ( !isset($options['slug']) ) $options['slug'] = 'video';
 
-// готовим пагинацию
+// готовим пагинацию видео записей
 $pag = array();
 $pag['limit'] = $options['limit'];
 $CI->db->select('dignity_video_id');
@@ -57,60 +62,77 @@ if ($query->num_rows() > 0)
 	
 	$out = '';
 	
-	// путь к картинкам
-	$path = getinfo('plugins_url') . 'dignity_video/img/';
-	
-	// выводим иконку rss
-	$out .= '<div class="right"><a href="' . getinfo('site_url') . $options['slug'] . '/rss/' . '"><img src="' . $path . 'rss.gif' . '"></a></div>';
-	
 	foreach ($allpages as $onepage) 
 	{
-		$out .= '<div class="page_only">';
-		
-		$out .= '<div class="info info-top">';
-		$out .= '<h1><a href="' . getinfo('site_url') . $options['slug'] . '/view/' . $onepage['dignity_video_id'] . '">' . $onepage['dignity_video_title'] . '</a></h1>';
-		// если вошел админ
-                if ($onepage['dignity_video_comuser_id'] == getinfo('comusers_id'))
-                {
-                	// выводим ссылку «редактировать»
-                        $out .= '<p><span style="padding-right:10px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt=""></span><a href="' . getinfo('site_url') . $options['slug'] . '/edit/' . $onepage['dignity_video_id'] . '">' . t('Редактировать', __FILE__) . '</a></p>';
-                }
-		$out .= '</div>';
-		
-		$out .= '<p>' . video_cleantext($onepage['dignity_video_text']) . '</p>';
-		
-		$out .= '<div class="info info-bottom">';
-		$out .= '<p style="text-align:right;">';
+		$out .= '<div class="video_page_only">';
 
-		$out .= '<span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/user.png' . '"></span> <a href="' . getinfo('site_url') . $options['slug'] . '/all_one_author/' . $onepage['dignity_video_comuser_id'] . '">' . $onepage['comusers_nik'] . '</a>';
-		
-		$out .= ' | <span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/public.png' . '"></span>' . mso_date_convert($format = 'd.m.Y, H:i', $onepage['dignity_video_datecreate']);
-			
-		$out .= ' | <span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/views.png' . t('Просмотров: ', __FILE__) . $onepage['dignity_video_views'];
-			
-		if ($onepage['dignity_video_category_id'])
-		{
-			$out .= ' | <span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/ordner.png' . '"></span>' . t('Рубрика:', __FILE__) . ' <a href="' . getinfo('site_url') . $options['slug'] . '/category/' . $onepage['dignity_video_category_id'] . '">' . $onepage['dignity_video_category_name'] . '</a>';
-		}
-		else
-		{
-			$out .= ' | ' . t('Рубрика:', __FILE__)  . ' <a href="' . getinfo('site_url') . $options['slug'] .'">' . t('Все видео', __FILE__) . '</a>';	
-		}
+			$out .= '<div class="video_info">';
+				$out .= '<h1>';
+				$out .= '<a href="' . getinfo('site_url') . $options['slug'] . '/view/' . $onepage['dignity_video_id'] . '">' . $onepage['dignity_video_title'] . '</a>';
+				$out .= '</h1>';
+			$out .= '</div>';
 
-		$CI->db->from('dignity_video_comments');
-		$CI->db->where('dignity_video_comments_approved', true);
-		$CI->db->where('dignity_video_comments_thema_id', $onepage['dignity_video_id']);
-		$out .= ' | <span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/comments.png' . '"></span>' . t('Комментарий: ', __FILE__) . $CI->db->count_all_results();
+			// если вошел автор видео записи
+			if ($onepage['dignity_video_comuser_id'] == getinfo('comusers_id'))
+			{
+				// выводим ссылку «редактировать»
+				$out .= '<div class="video_info_edit">';
+					$out .= '<p>';
+					$out .= '<span style="padding-right:10px;">';
+					$out .= '<img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt="">';
+					$out .= '</span>';
+					$out .= '<a href="' . getinfo('site_url') . $options['slug'] . '/edit/' . $onepage['dignity_video_id'] . '">' . t('Редактировать', __FILE__) . '</a>';
+					$out .= '</p>';
+				$out .= '</div>';
+			}
 		
-		$out .= '</p>';
-		$out .= '</div>';
-			
-		$out .= '<div class="break"></div></div><!--div class="page_only"-->';
+			// выводим видео запись
+			$out .= '<div class="video_info_cuttext">';
+	        $out .= '<p>' . video_cleantext($onepage['dignity_video_text']) . '</p>';
+	        $out .= '</div>';
+		
+			$out .= '<div class="video_info">';
+
+				// выводим дату
+				$out .= '<span style="padding-right:5px;">';
+				$out .= '<img src="' . getinfo('plugins_url') . 'dignity_video/img/public.png' . '" alt="" title="' . t('Количество просмотров', __FILE__) . '">';
+				$out .= '</span>';
+				$out .= mso_date_convert($format = 'd.m.Y, H:i', $onepage['dignity_video_datecreate']);
+
+				// рубрика
+				if ($onepage['dignity_video_category_id'])
+				{
+					$out .= ' | ';
+					$out .= '<span style="padding-right:0px;">';
+					$out .= '<img src="' . getinfo('plugins_url') . 'dignity_video/img/ordner.png' . '" alt="" title="' . t('Категория', __FILE__) . '">';
+					$out .= '</span>';
+					$out .= ' <a href="' . getinfo('site_url') . $options['slug'] . '/category/' . $onepage['dignity_video_category_id'] . '">' . $onepage['dignity_video_category_name'] . '</a>';
+				}
+				else
+				{
+					$out .= ' | ';
+					$out .= '<span style="padding-right:0px;">';
+					$out .= '<img src="' . getinfo('plugins_url') . 'dignity_video/img/ordner.png' . '" alt="" title="' . t('Категория', __FILE__) . '">';
+					$out .= ' <a href="' . getinfo('site_url') . $options['slug'] .'">' . t('Все видео', __FILE__) . '</a>';	
+					$out .= '</span>';
+				}
+
+				$CI->db->from('dignity_video_comments');
+				$CI->db->where('dignity_video_comments_approved', true);
+				$CI->db->where('dignity_video_comments_thema_id', $onepage['dignity_video_id']);
+				$out .= ' | ';
+				$out .= '<span style="padding-right:5px;">';
+				$out .= '<img src="' . getinfo('plugins_url') . 'dignity_video/img/comments.png' . '">';
+				$out .= '</span>';
+				$out .= $CI->db->count_all_results();
+				
+			$out .= '</div>';
+					
+			$out .= '<div class="video_break"></div>';
+
+		$out .= '</div><!--div class="video_page_only"-->';
 		
 	}
-	
-	// выводим навигацию видео
-	video_menu();
 	
 	// выводим всё
 	echo $out;
@@ -120,12 +142,17 @@ if ($query->num_rows() > 0)
 }
 else
 {
-	// выводим навигацию видео
-	video_menu();
-	
-	echo t('Видео нет.', __FILE__);
+	echo '<p>' . t('Видео нет.', __FILE__) . '</p>';
 }
 
-require(getinfo('template_dir') . 'main-end.php');
+// просьба не удалять эту строчку!
+echo '<div class="video_info_copyright">';
+	echo '<p>';
+	echo t('Dignity Video by <a href="http://alexanderschilling.net" title="' . t('Перейти на сайт разработчика', __FILE__) . '">Alexander Schilling</a> | Source on <a href="https://github.com/dignityinside/dignity_video" title="' . t('Страница на github', __FILE__) . '">github</a>', __FILE__);
+	echo '</p>';
+echo '</div>';
+
+// конец шаблона
+if ($fn = mso_find_ts_file('main/main-end.php')) require($fn);
 
 # end of file

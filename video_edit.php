@@ -1,16 +1,22 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-/**
- *
- * Alexander Schilling
- * (c) http://dignityinside.org
- *
+/*
+ * (c) Alexander Schilling
+ * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
  */
 
-require(getinfo('template_dir') . 'main-start.php');
+// начало шаблона
+if ($fn = mso_find_ts_file('main/main-start.php')) require($fn);
 
+// выводим навигацию видео
+video_menu();
+
+// получаем доступ к CI
 $CI = & get_instance();
 
+// проверяем является ли 3 сегмент цислом
 $id = mso_segment(3);
 if (!is_numeric($id)) $id = false; // не число
 else $id = (int) $id;
@@ -23,10 +29,7 @@ if ( !isset($post['f_dignity_video_category'])) $post['f_dignity_video_category'
 
 if ($id && is_login_comuser())
 {
-	
-	// выводим навигацию видео
-	video_menu();
-
+	// берем данные из базы
 	$CI->db->from('dignity_video');
 	$CI->db->where('dignity_video_id', $id);
 	$q = $CI->db->get();
@@ -36,10 +39,12 @@ if ($id && is_login_comuser())
 		$article_comuser_id = $rw['dignity_video_comuser_id'];
 	}
 	
+	// проверяем автора записи
 	if (getinfo('comusers_id') != $article_comuser_id){
 		echo t('Вы не можере редактировать чужие записи.', __FILE__);
 	}
-	else{
+	else
+	{
 		echo '<h1>' . t('Редактировать', __FILE__) . '</h1>';
 		
 		# удаление
@@ -55,10 +60,13 @@ if ($id && is_login_comuser())
 			echo '<div class="update">' . t('Удалено!', __FILE__) . '<p><a href="' . getinfo('site_url') . $options['slug'] . '">' . t('Назад в блоги', __FILE__) . '</a>' . '</p></div>';
 		}
 		
+		// обновляем данные
 		if ( $post = mso_check_post(array('f_session_id', 'f_submit_dignity_video')) )
 		{
+			// проверяем реферала
 			mso_checkreferer();
-	
+			
+			// готовим массив
 			$data = array (
 				'dignity_video_title' => htmlspecialchars($post['f_dignity_video_title']),
 				'dignity_video_text' => htmlspecialchars($post['f_dignity_video_text']),
@@ -70,6 +78,7 @@ if ($id && is_login_comuser())
 				);
 			
 			$CI->db->where('dignity_video_id', $id);
+
 			if ($CI->db->update('dignity_video', $data ) )
 				echo '<div class="update">' . t('Обновлено! После проверки, ваше видео будет опубликовано.', __FILE__) .
 				'<p>' .
@@ -80,10 +89,12 @@ if ($id && is_login_comuser())
 				echo '<div class="error">' . t('Ошибка обновления', __FILE__) . '</div>';
 	
 			mso_flush_cache();
+
 		}
 		else
 		{
-			// Берём данные из базы и вставляем их в форму
+
+			// берём данные из базы и вставляем их в форму
 			$CI->db->from('dignity_video');
 			$CI->db->where('dignity_video_id', $id);
 			$query = $CI->db->get();
@@ -152,10 +163,12 @@ if ($id && is_login_comuser())
 		}
 	}
 }
-else{
+else
+{
 	echo t('Ошибочный номер.', __FILE__);
 }
 
-require(getinfo('template_dir') . 'main-end.php');
+// конец шаблона
+if ($fn = mso_find_ts_file('main/main-end.php')) require($fn);
 
-?>
+#end of file

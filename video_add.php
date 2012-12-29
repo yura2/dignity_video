@@ -1,11 +1,17 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-/**
+/*
  * (c) Alexander Schilling
  * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
  */
 
-require(getinfo('template_dir') . 'main-start.php');
+// начало шаблона
+if ($fn = mso_find_ts_file('main/main-start.php')) require($fn);
+
+// выводим навигацию видео
+video_menu();
 
 $options = mso_get_option('plugin_dignity_video', 'plugins', array());
 if ( !isset($options['slug']) ) $options['slug'] = 'video';
@@ -15,8 +21,6 @@ $CI = & get_instance();
 
 if (is_login_comuser())
 {
-	// выводим навигацию видео
-	video_menu();
 	
 	echo '<h1>' . t('Добавить видео', __FILE__) . '</h1>';
 
@@ -127,6 +131,7 @@ else
 	}
 }
 
-require(getinfo('template_dir') . 'main-end.php');
+// конец шаблона
+if ($fn = mso_find_ts_file('main/main-end.php')) require($fn);
 
 #end of file

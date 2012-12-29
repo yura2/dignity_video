@@ -1,11 +1,17 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-/**
+/*
  * (c) Alexander Schilling
  * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
  */
 
-require(getinfo('template_dir') . 'main-start.php');
+// начало шаблона
+if ($fn = mso_find_ts_file('main/main-start.php')) require($fn);
+
+// выводим меню
+video_menu();
 
 // доступ к CodeIgniter
 $CI = & get_instance();
@@ -20,10 +26,10 @@ $id = mso_segment(3);
 if (!is_numeric($id)) $id = false; // не число
 else $id = (int) $id;
 
-if ($id)
+if ($id && getinfo('comusers_id') == $id)
 {
 
-	// готовим пагинацию
+	// готовим пагинацию для видео записей
 	$pag = array();
 	$pag['limit'] = 15;
 	$CI->db->from('dignity_video');
@@ -61,13 +67,12 @@ if ($id)
 	{	
 		$allpages = $query->result_array();
 		
-		// обьявляем переменую	
 		$out = '';
 		
-		// цикл
-                foreach ($allpages as $onepage) 
-                {
-                        $out .= '<div class="page_only">';
+        foreach ($allpages as $onepage) 
+        {
+            
+            $out .= '<div class="video_page_only">';
 			
 			$no_approved = '';
 			if ($onepage['dignity_video_comuser_id'] == getinfo('comusers_id'))
@@ -78,7 +83,8 @@ if ($id)
 				}
 			}
 		
-                        $out .= '<div class="info info-top"><h1>' . $no_approved;
+            $out .= '<div class="video_info">';
+            $out .= '<h1>' . $no_approved;
 			
 			if($onepage['dignity_video_approved'])
 			{
@@ -91,44 +97,51 @@ if ($id)
 			
 			$out .= $onepage['dignity_video_title'] . '</a> ';
                         
-                        $out .= '</h1></div>';
+            $out .= '</h1>';
+            $out .= '</div>';
 		
-                        // если вошел админ
-                        if ($onepage['dignity_video_comuser_id'] == getinfo('comusers_id'))
-                        {
-                                // выводим ссылку «редактировать»
-                                $out .= '<p><span style="padding-right:10px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt=""></span><a href="' . getinfo('site_url') . $options['slug'] . '/edit/' . $onepage['dignity_video_id'] . '">' . t('Редактировать', __FILE__) . '</a></p>';
-                        }
+            	// если вошел автор видео записи
+				if ($onepage['dignity_video_comuser_id'] == getinfo('comusers_id'))
+				{
+					// выводим ссылку «редактировать»
+					$out .= '<div class="video_info_edit">';
+						$out .= '<p>';
+						$out .= '<span style="padding-right:10px;">';
+						$out .= '<img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt="">';
+						$out .= '</span>';
+						$out .= '<a href="' . getinfo('site_url') . $options['slug'] . '/edit/' . $onepage['dignity_video_id'] . '">' . t('Редактировать', __FILE__) . '</a>';
+						$out .= '</p>';
+					$out .= '</div>';
+				}
 		
-                        #$out .= '<p>' . video_cleantext($onepage['dignity_video_text']) . '</p>';
+				$out .= '<div class="video_info"></div>';
+				
+				$out .= '<div class="video_break"></div>';
+
+			$out .= '</div><!--div class="page_only"-->';
 		
-			$out .= '<div class="info info-bottom">';
-			$out .= '</div>';
-			
-			$out .= '<div class="break"></div></div><!--div class="page_only"-->';
-		
-                }
-		
-		video_menu();
+            }
 		
 		// выводим всё
 		echo $out;
 
+		// выводи пагинацию
 		mso_hook('pagination', $pag);
 
 	}
 	else
 	{ 
-                video_menu();
+		// видео не найдено
 		video_not_found();
 	}
 }
 else
 {
-	video_menu();
+	// видео не найдено
 	video_not_found();
 }
 
-require(getinfo('template_dir') . 'main-end.php');
+// конец шаблона
+if ($fn = mso_find_ts_file('main/main-end.php')) require($fn);
 
 // конец файла

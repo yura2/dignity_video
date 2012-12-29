@@ -1,5 +1,12 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+/*
+ * (c) Alexander Schilling
+ * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
+ */
+
 // получаем доступ к CI
 $CI = & get_instance();
 
@@ -51,3 +58,5 @@ echo("</channel></rss>");
 
 // добавляем в кеш
 mso_add_cache($cache_key, ob_get_flush());
+
+#end of file

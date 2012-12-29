@@ -1,11 +1,14 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-/**
+/*
  * (c) Alexander Schilling
  * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
  */
 
-require(getinfo('template_dir') . 'main-start.php');
+// начало шаблона
+if ($fn = mso_find_ts_file('main/main-start.php')) require($fn);
 
 // доступ к CodeIgniter
 $CI = & get_instance();
@@ -23,7 +26,7 @@ echo '<h1><a href="' . getinfo('siteurl') . $options['slug'] . '">' . t('Нов�
 // получаем доступ к CI
 $CI = & get_instance();
 
-// готовим пагинацию
+// готовим пагинацию комментарий
 $pag = array();
 $pag['limit'] = 20;
 $CI->db->select('dignity_video_comments_id');
@@ -146,9 +149,10 @@ if ($query->num_rows() > 0)
 }
 else
 {
-	echo t('Нет новых комментарий.', __FILE__);
+	echo '<p>' . t('Нет новых комментарий.', __FILE__) . '</p>';
 }
 
-require(getinfo('template_dir') . 'main-end.php');
+// конец шаблона
+if ($fn = mso_find_ts_file('main/main-end.php')) require($fn);
 
 // конец файла

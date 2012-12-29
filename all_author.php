@@ -1,8 +1,10 @@
 <?php if (!defined('BASEPATH')) exit('No direct script access allowed'); 
 
-/**
+/*
  * (c) Alexander Schilling
  * http://alexanderschilling.net
+ * https://github.com/dignityinside/dignity_video (github)
+ * License GNU GPL 2+
  */
 
 // начало шаблона
@@ -19,7 +21,7 @@ $options = mso_get_option('plugin_dignity_video', 'plugins', array());
 if ( !isset($options['limit']) ) $options['limit'] = 10;
 if ( !isset($options['slug']) ) $options['slug'] = 'video';
 
-// готовим пагинацию
+// готовим пагинацию для авторов
 $pag = array();
 $pag['limit'] = $options['limit'];
 $CI->db->select('dignity_video_id');
@@ -44,6 +46,7 @@ else
 	$pag = false;
 }
 
+// берем даныне из базы
 $CI->db->from('dignity_video');
 $CI->db->where('dignity_video_approved', true);
 $CI->db->order_by('dignity_video_comuser_id', 'asc');
@@ -63,11 +66,14 @@ if ($query->num_rows() > 0)
 	foreach ($allpages as $onepage) 
 	{
 		
-		$out .= '<h2><a href="' . getinfo('site_url') . $options['slug'] . '/all_one_author/' . $onepage['dignity_video_comuser_id'] . '">' . t('Все видео записи ', __FILE__) . $onepage['comusers_nik'] . '</a></h2>';
+		$out .= '<h2>';
+		$out .= '<a href="' . getinfo('site_url') . $options['slug'] . '/all_one_author/' . $onepage['dignity_video_comuser_id'] . '">' . t('Все видео записи ', __FILE__) . $onepage['comusers_nik'] . '</a>';
+		$out .= '</h2>';
 	}
 	
 	echo $out;
 	
+	// добавляем пагинацию
 	mso_hook('pagination', $pag);
 }
 else
