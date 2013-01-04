@@ -283,8 +283,11 @@ function dignity_video_admin_page($args = array())
 	mso_hook_add_dinamic( 'mso_admin_header', ' return $args . "' . t('Видео', __FILE__) . '"; ' );
 	mso_hook_add_dinamic( 'admin_title', ' return "' . t('Видео', __FILE__) . ' - " . $args; ' );
 
-	if ( mso_segment(3) == 'edit') require(getinfo('plugins_dir') . 'dignity_video/edit.php');
-	elseif ( mso_segment(3) == 'editone') require(getinfo('plugins_dir') . 'dignity_video/editone.php');
+	// редактировать (админ)
+	if ( mso_segment(3) == 'edit_comments') require(getinfo('plugins_dir') . 'dignity_video/admin/edit_comments.php');
+	elseif ( mso_segment(3) == 'editone_comment') require(getinfo('plugins_dir') . 'dignity_video/admin/editone_comment.php');
+	elseif ( mso_segment(3) == 'edit_video') require(getinfo('plugins_dir') . 'dignity_video/admin/edit_video.php');
+	elseif ( mso_segment(3) == 'editone_video') require(getinfo('plugins_dir') . 'dignity_video/admin/editone_video.php');
 	
 	else require(getinfo('plugins_dir') . 'dignity_video/admin.php');
 }
@@ -388,17 +391,20 @@ function video_cleantext(&$content)
                 '~\[url\](.*?)\[\/url\]~si' => '<a href="$1" rel="nofollow">$1</a>',
                 '~\[url=(.[^ ]*?)\](.*?)\[\/url\]~si' => '<a href="$1" rel="nofollow">$2</a>',
                 
-                // youtube
+                // youtube (оставил для совместимости)
                 '~\[youtube\](.*?)\[\/youtube\]~si' => '<iframe width="640" height="360" src="http://www.youtube.com/embed/$1" frameborder="0" allowfullscreen></iframe>',
                 
-                // вконтакте
+                // вконтакте (оставил для совместимости)
                 '~\[vk\](.*?)\[\/vk\]~si' => '<iframe src="$1" width="640" height="360" frameborder="0"></iframe>',
 				
-				// vimeo
+				// vimeo (оставил для совместимости)
 				'~\[vimeo\](.*?)\[\/vimeo\]~si' => '<iframe src="http://player.vimeo.com/video/$1" width="640" height="360" frameborder="0" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>',
 
-				// yandex-video
+				// yandex-video (оставил для совместимости)
 				'~\[yavideo\](.*?)\[\/yavideo\]~si' => '<iframe width="640" height="360" frameborder="0" src="$1"></iframe>',
+
+				// новый тэг для видео
+				'~\[video\](.*?)\[\/video\]~si' => '<iframe width="640" height="360" src="$1"></iframe>',
                                             
                 // переносы                                        
                 '~\n~' => '<br/>',
@@ -432,10 +438,7 @@ function dignity_video_editor()
 			{name:'Подчеркнутый', openWith:'[u]', closeWith:'[/u]', className:'underline', key:'U'},
 			{name:'Зачеркнутый', openWith:'[s]', closeWith:'[/s]', className:'stroke', key:'S'},
 			{name:'Ссылка', openBlockWith:'[url]', closeBlockWith:'[/url]', className:'link'},
-			{name:'Youtube-Видео', openBlockWith:'[youtube]', closeBlockWith:'[/youtube]', className:'youtube'},
-            {name:'Видко-Вконтакте', openBlockWith:'[vk]', closeBlockWith:'[/vk]', className:'vk'},
-			{name:'Vimeo-Видео', openBlockWith:'[vimeo]', closeBlockWith:'[/vimeo]', className:'vimeo'},
-			{name:'Яндекс-Видео', openBlockWith:'[yavideo]', closeBlockWith:'[/yavideo]', className:'ya_video'},
+			{name:'Видео', openBlockWith:'[video]', closeBlockWith:'[/video]', className:'video'},
 		],
 		
 		}
@@ -500,28 +503,29 @@ function video_menu()
 		        
 		    if (is_login_comuser())
 			{
+
+				// если добавить
+				if (mso_segment(2) == 'add')
+				{
+					echo '<li class="elem video_tabs-current"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/add/' . '">' . t('Добавить видео', __FILE__) . '</a></span></li>';
+				}
+				else
+				{
+					echo '<li class="elem"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/add/' . '">' . t('Добавить видео', __FILE__) . '</a></span></li>';
+				}
+
 				// если мои записи
 				if (mso_segment(2) == 'my')
 				{
-					echo '<li class="elem video_tabs-current"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/my.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/my/' . getinfo('comusers_id') . '">' . t('Мои', __FILE__) . '</a></span></li>';
+					echo '<li class="elem video_tabs-current"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/my.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/my/' . getinfo('comusers_id') . '">' . t('Мои видео', __FILE__) . '</a></span></li>';
 				}
 				else
 				{
-					echo '<li class="elem"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/my.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/my/' . getinfo('comusers_id') . '">' . t('Мои', __FILE__) . '</a></span></li>';
-				}
-		        
-		        // если добавить
-				if (mso_segment(2) == 'add')
-				{
-					echo '<li class="elem video_tabs-current"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/add/' . '">' . t('Добавить', __FILE__) . '</a></span></li>';
-				}
-				else
-				{
-					echo '<li class="elem"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/edit.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/add/' . '">' . t('Добавить', __FILE__) . '</a></span></li>';
+					echo '<li class="elem"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/my.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/my/' . getinfo('comusers_id') . '">' . t('Мои видео', __FILE__) . '</a></span></li>';
 				}
 		    }
 			
-			echo '<li class="elem"><span style="padding-right:5px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/rss.png' . '" alt=""></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/rss/' . '">' . t('RSS', __FILE__) . '</a></span></li>';
+			echo '<li class="elem"><span style="padding-right:0px;"><img src="' . getinfo('plugins_url') . 'dignity_video/img/rss.png' . '" alt="" title="' . t('RSS', __FILE__) . '"></span><span><a href="' . getinfo('site_url') . $options['slug'] . '/rss/' . '"></a></span></li>';
 		        
 		    echo '</ul>';
     echo '</div>';

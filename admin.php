@@ -9,6 +9,15 @@
 
 echo '<h1>' . t('Видео', __FILE__) . '</h1>';
 
+// админ-меню
+echo '<div class="admin-h-menu">';
+	$plugin_url = getinfo('site_admin_url') . 'dignity_video';
+	$a  = mso_admin_link_segment_build($plugin_url, '', t('Настройки', __FILE__), 'select') . ' | ';
+	$a  .= mso_admin_link_segment_build($plugin_url, 'edit_comments', t('Комментарии', __FILE__), 'select') . ' | ';
+	$a  .= mso_admin_link_segment_build($plugin_url, 'edit_video', t('Видео', __FILE__), 'select');
+	echo $a;
+echo '</div>';
+
 $CI = & get_instance();
 
 $options_key = 'plugin_dignity_video';

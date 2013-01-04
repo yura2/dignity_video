@@ -9,10 +9,7 @@
 .bbcode .stroke a {background-image:url(../img/editor/stroke.png); }
 .bbcode .br a { background-image:url(../img/editor/br.png); }
 .bbcode .link a	{background-image:url(../img/editor/link.png); }
-.bbcode .youtube a { background-image:url(../img/editor/youtube.png); }
-.bbcode .vk a { background-image:url(../img/editor/vk.png); }
-.bbcode .vimeo a { background-image:url(../img/editor/vimeo.png); }
-.bbcode .ya_video a { background-image:url(../img/editor/yandex_video.png); }
+.bbcode .video a { background-image:url(../img/editor/video.png); }
 
 /* -------------------------------------------------------------------
 // markItUp! Universal MarkUp Engine, JQuery plugin
