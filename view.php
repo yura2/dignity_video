@@ -282,7 +282,7 @@ if ($id)
 							$comments_out .= t(' в ', __FILE__) . mso_date_convert($format = 'H:i → d.m.Y', $onecomment['dignity_video_comments_datecreate']) . '</span>';
 						$comments_out .= '</div>';
 						$comments_out .= '<div class="video_comments_content">';
-							$comments_out .= '<p>' . $onecomment['dignity_video_comments_text'] . '</p>';
+							$comments_out .= '<p>' . video_cleantext($onecomment['dignity_video_comments_text']) . '</p>';
 						$comments_out .= '</div>';
 					$comments_out .= '</li>';
 				$comments_out .= '</div>';

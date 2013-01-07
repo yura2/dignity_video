@@ -10,7 +10,7 @@
 $info = array(
 	'name' => t('dignity_video', __FILE__),
 	'description' => t('Видео каталог для MaxSite CMS', __FILE__),
-	'version' => '0.8',
+	'version' => '0.9',
 	'author' => t('Александр Шиллинг', __FILE__),
 	'plugin_url' => 'http://alexanderschilling.net/',
 	'author_url' => 'http://alexanderschilling.net/',
