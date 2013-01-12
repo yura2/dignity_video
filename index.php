@@ -11,6 +11,9 @@ function dignity_video_autoload()
 {
 	mso_hook_add('admin_init', 'dignity_video_admin_init');
 	mso_hook_add('custom_page_404', 'dignity_video_custom_page_404');
+
+	// для вывода количеств видео записей и комментарий
+	mso_hook_add('users_add_out', 'dignity_video_users_add_out', '80');
 	
 	// регестируем виджет
 	mso_register_widget('dignity_video_category_widget', t('Видео категории', __FILE__));
@@ -554,6 +557,47 @@ function video_style_css($a = array())
 	echo '<link rel="stylesheet" href="' . $css . '">' . NR;
 	
 	return $a;
+}
+
+// функция хука users_add_out
+// выводит количество видео записей и комментарий на странице комюзера
+function dignity_video_users_add_out($comuser = array())
+{
+	// доступ к CodeIgniter
+	$CI = & get_instance();
+
+	// загружаем опции
+	$options = mso_get_option('plugin_dignity_video', 'plugins', array());
+	if ( !isset($options['slug']) ) $options['slug'] = 'video';
+
+	echo '<h2 style="padding: 3px; border-bottom: 1px solid #DDD;">' . t('Активность в видео', __FILE__) . '</h2>';
+		
+	$CI->db->from('dignity_video');
+	$CI->db->where('dignity_video_approved', '1');
+	$CI->db->where('dignity_video_comuser_id', mso_segment(2));
+	$video_entry = $CI->db->count_all_results();
+
+	// если больше одной, то выводим ссылку на все видео записи комюзера
+    if ($video_entry >= 1)
+    {
+    	$entry_url = '<a href="' . getinfo('site_url') . $options['slug'] . '/all_one_author/' . mso_segment(2) . '">' . $video_entry . '</a>';
+    }
+    else
+    {
+    	$entry_url = $video_entry;
+    }
+		
+	echo '<p style="padding-left:20px;">' . '<strong>' . t('Публикаций:', __FILE__) . '</strong> ' . $entry_url . '</p>';
+		
+	$CI->db->from('dignity_video_comments');
+	$CI->db->where('dignity_video_comments_approved', '1');
+	$CI->db->where('dignity_video_comments_comuser_id', mso_segment(2));
+	$video_comments = $CI->db->count_all_results();
+		
+	echo '<p style="padding-left:20px;">' . '<strong>' . t('Комментарий:', __FILE__) . '</strong> ' . $video_comments . '</p>';
+
+	return $comuser;
+
 }
 
 #end of file
