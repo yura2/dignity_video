@@ -78,7 +78,7 @@ if ($query->num_rows() > 0)
 		// выводим названия категории и количество записей в ней
 		$catout .= '<li>';
 		$catout .= '<p>';
-		$catout .= '<a href="' . getinfo('siteurl') . $options['slug'] . '/view/' . $entry['dignity_video_comments_thema_id'] . '">' . blogs_cleantext(mso_str_word($entry['dignity_video_comments_text'], $counttext = 10, $sep = ' ')) . ' ...</a>'
+		$catout .= '<a href="' . getinfo('siteurl') . $options['slug'] . '/view/' . $entry['dignity_video_comments_thema_id'] . '">' . video_cleantext(mso_str_word($entry['dignity_video_comments_text'], $counttext = 10, $sep = ' ')) . ' ...</a>'
 			. '<br>' . t(' от ', __FILE__) . '<a href="' . getinfo('siteurl') . 'users/' . $entry['dignity_video_comments_comuser_id'] . '">' . $entry['comusers_nik'] . '</a>' . t(' в ', __FILE__) . mso_date_convert($format = 'H:i → d.m.Y', $entry['dignity_video_comments_datecreate']);
 		if (is_login())
 		{	

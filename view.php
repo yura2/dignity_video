@@ -16,6 +16,7 @@ video_menu();
 // загружаем опции
 $options = mso_get_option('plugin_dignity_video', 'plugins', array());
 if ( !isset($options['cackle_code']) ) $options['cackle_code'] = '';
+if ( !isset($options['slug']) ) $options['slug'] = 'video';
 
 // получаем доступ к CI
 $CI = & get_instance();
@@ -310,7 +311,7 @@ if ($id)
 			{
 				echo '<a href="' . getinfo('site_url') . 'login' . '">' . t('Войти', __FILE__) . '</a>';
 				echo ' | ';
-				echo '<a href="' . getinfo('site_url') . 'register' . '">' . t('Регистрация', __FILE__) . '</a>';
+				echo '<a href="' . getinfo('site_url') . 'registration' . '">' . t('Регистрация', __FILE__) . '</a>';
 
 				if ($options['cackle_code'])
 				{
